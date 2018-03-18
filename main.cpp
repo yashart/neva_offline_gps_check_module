@@ -17,11 +17,14 @@ int main() {
     Mat curr, prev;
     char fileName[120];
     char coordTxtName[120];
+    char coordTxtOffsetsName[120];
     char timeName[100];
     bool isFirstTick = 1;
     sprintf(coordTxtName, "%s/coord.txt", kor.folderName);
+    sprintf(coordTxtOffsetsName, "%s/offsets.txt", kor.folderName);
 
     FILE* coordTxt = fopen(coordTxtName, "w");
+    FILE* coordTxtOffsets = fopen(coordTxtOffsetsName, "w");
     PhotoInfo photoInfo;
     photoInfo.offsetX = 0;
     photoInfo.offsetY = 0;
@@ -33,14 +36,18 @@ int main() {
     double mYaw = kor.yaw;
     double mHeight = kor.alt;
 
-    for (float i = 0; i < kor.duration; i += 1 / kor.framePerSeconds) {
+    for (float i = 0; i < kor.duration; i += kor.framePerSeconds) {
         sprintf(fileName, "%s/%06d.jpg", kor.folderName, ( firstImgCounter + (int)(10 * i)));
         printf("fileName %s\n", fileName);
-        int currTime = (kor.startVideoTime + (int)(10 * i));
+        int currTime = (kor.firstPointTime + (int)(1000 * i));
         convert_decimal_time_to_text(timeName, currTime);
         if (isFirstTick) {
             isFirstTick = 0;
             prev = imread(fileName);
+            fprintf(coordTxt, "%s %8lf %8lf %lf\n", timeName, mLat, mLon, mHeight);
+            fprintf(coordTxtOffsets, "%s %8lf %8lf %lf 0 0\n",
+                    timeName, mLat, mLon, mHeight);
+
             continue;
         }
         curr = imread(fileName);
@@ -51,14 +58,17 @@ int main() {
             prev = curr.clone();
             continue;
         }
-        mLat -= 2.0 * photoInfo.offsetY * mHeight / 111132.0 / 1080.0;
-        mLon += 2.0 * photoInfo.offsetX * mHeight / 78847.0 / 1920.0;
-        photoInfo.offsetX = 0;
-        photoInfo.offsetY = 0;
+        mLat -= kor.calibLat * photoInfo.offsetY * mHeight / 111132.0 / 1080.0;
+        mLon += kor.calibLon * photoInfo.offsetX  * mHeight / 78847.0 / 1920.0;
         mHeight = mHeight * sqrt(float(oldSquare)) / sqrt(float(photoInfo.xOnLatScaling));
         mYaw = -1 * photoInfo.angle;
 
         fprintf(coordTxt, "%s %8lf %8lf %lf\n", timeName, mLat, mLon, mHeight);
+        fprintf(coordTxtOffsets, "%s %8lf %8lf %lf %d %d\n",
+                timeName, mLat, mLon, mHeight, photoInfo.offsetX, photoInfo.offsetY);
+
+        photoInfo.offsetX = 0;
+        photoInfo.offsetY = 0;
 
         prev = curr.clone();
     }
@@ -67,8 +77,12 @@ int main() {
 }
 
 void convert_decimal_time_to_text(char* newText, int currTime) {
+    int currTime2 = currTime;
     int minutes = currTime/60000;
-    int seconds = (currTime - (currTime/60000)*60000)/1000;
-    int msec = (currTime - (currTime/60000)*60000 - ((currTime - (currTime/60000)*60000)/1000)*1000);
+    currTime2 = currTime2 - floor(currTime2/60000)*60000;
+    int seconds = currTime2/1000;
+    currTime2 = currTime2 - floor(currTime2/1000)*1000;
+
+    int msec = currTime2;
     sprintf(newText, "0:%d:%d.%d", minutes, seconds, msec);
 }

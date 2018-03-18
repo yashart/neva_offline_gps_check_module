@@ -11,6 +11,8 @@ struct Kor {
     double yaw;
     float duration;
     float framePerSeconds;
+    double calibLat;
+    double calibLon;
 };
 
 void kor_parce_ini (Kor* kor);

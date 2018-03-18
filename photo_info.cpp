@@ -3,6 +3,7 @@
 #include <string.h>
 #include "photo_info.h"
 #include "surf.h"
+#include "fftm.hpp"
 
 using namespace cv;
 
@@ -11,6 +12,8 @@ PhotoInfo calc_photo_info(cv::Mat& im0Init, cv::Mat& im1Init, PhotoInfo photoInf
     Mat im1 = im1Init.clone();
 
     RotatedRect rr = surfTemplateMatching(im1, im0);
+    //RotatedRect rr = LogPolarFFTTemplateMatch(im1, im0, 0, 0);
+
     PhotoInfo newPhoto;
     int rrOffsetX = round(rr.center.x - 1920.0/2);
     int rrOffsetY = round(rr.center.y - 1080.0/2);

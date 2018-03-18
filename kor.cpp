@@ -13,6 +13,8 @@ void kor_parce_ini (Kor* kor) {
     fscanf(korIniFile, "%lf\n", &(kor->yaw));
     fscanf(korIniFile, "%f\n", &(kor->duration));
     fscanf(korIniFile, "%f\n", &(kor->framePerSeconds));
+    fscanf(korIniFile, "%lf\n", &(kor->calibLat));
+    fscanf(korIniFile, "%lf\n", &(kor->calibLon));
 
     fclose(korIniFile);
 }
@@ -27,6 +29,8 @@ void kor_dump(Kor* kor) {
     printf("alt %lf\n", kor->alt);
     printf("yaw %lf\n", kor->yaw);
     printf("duration %f\n", kor->duration);
-    printf("frame per second %f\n", kor->framePerSeconds);
+    printf("frame rate %f\n", kor->framePerSeconds);
+    printf("calib Lat %lf\n", kor->calibLat);
+    printf("calib Lon %lf\n", kor->calibLon);
     printf("--------------------------\n");
 }
