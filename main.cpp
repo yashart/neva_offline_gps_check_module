@@ -4,6 +4,7 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include "math.h"
 #include "kor.h"
+#include "drone_angle_header.h"
 
 using namespace cv;
 
@@ -22,6 +23,7 @@ int main() {
     bool isFirstTick = 1;
     sprintf(coordTxtName, "%s/coord.txt", kor.folderName);
     sprintf(coordTxtOffsetsName, "%s/offsets.txt", kor.folderName);
+    DroneAngleHeader droneAngleHeader = read_angles();
 
     FILE* coordTxt = fopen(coordTxtName, "w");
     FILE* coordTxtOffsets = fopen(coordTxtOffsetsName, "w");
@@ -40,6 +42,9 @@ int main() {
         sprintf(fileName, "%s/%06d.jpg", kor.folderName, ( firstImgCounter + (int)(10 * i)));
         printf("fileName %s\n", fileName);
         int currTime = (kor.firstPointTime + (int)(1000 * i));
+        photoInfo.angle = -1 * get_angels_by_time(currTime, droneAngleHeader).yaw;
+        printf("yaw: %lf \n", photoInfo.angle);
+
         convert_decimal_time_to_text(timeName, currTime);
         if (isFirstTick) {
             isFirstTick = 0;
