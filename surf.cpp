@@ -18,7 +18,7 @@ cv::RotatedRect surfTemplateMatching(cv::Mat& img_object, cv::Mat& img_scene) {
     //-- Step 1: Detect the keypoints using SURF Detector
     int minHessian = 300;
 
-    SurfFeatureDetector detector( minHessian, 4, 2, true, false );
+    SurfFeatureDetector detector( minHessian, 4, 2, true, true );
 
     std::vector<KeyPoint> keypoints_object, keypoints_scene;
 

@@ -16,8 +16,12 @@ DroneAngleHeader read_angles() {
     double pitch;
     double yaw;
     int i;
-    for (i = 0; fscanf(textAngles, "00:%d:%d.%d %lf %lf %lf\n",
-                            &minutes, &seconds, &mseconds, &roll, &pitch, &yaw) != EOF ;i++) {
+    double height;
+    char lat[50];
+    char lon[50];
+    fscanf (textAngles, ";sau\n");
+    for (i = 0; fscanf(textAngles, "00:%d:%d.%d\t%s %s %lf %lf\t%lf\t%lf\n",
+                            &minutes, &seconds, &mseconds, lat, lon, &height, &roll, &pitch, &yaw) != EOF ;i++) {
         mtime = mseconds * 10 + seconds * 1000 + minutes * 1000 * 60;
         droneAngleHeader.angles[i] = drone_angle_ctor(mtime, roll, pitch, yaw);
     }
